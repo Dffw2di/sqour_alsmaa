@@ -7,36 +7,45 @@
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: sans-serif; }
         
-        /* تأثير الخلفية المضببة مع بياض */
+        /* تأثير الخلفية */
         #game-view {
             width: 100vw; height: 100vh;
-            background-image: url('im1.png');
+            background-image: url('im1.jpeg');
             background-size: cover; background-position: center;
             position: relative; display: none;
         }
         #game-view::before {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); z-index: 1;
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); z-index: 1;
         }
 
         /* شاشة البداية */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('im1.png');
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('im1.png');
             background-size: cover; display: flex; flex-direction: column;
             align-items: center; justify-content: center; color: white; z-index: 5000;
         }
-        #start-screen h1 { font-size: 80px; margin: 0; }
-        #more-text { display: none; margin: 15px 0; color: #fff; }
-        .btn-main { padding: 15px 60px; font-size: 24px; cursor: pointer; border-radius: 50px; border: none; background: #28a745; color: white; margin: 10px; }
+        #start-screen h1 { font-size: clamp(50px, 10vw, 90px); margin: 0; text-shadow: 0 0 20px #000; }
+        #more-text { display: none; margin: 15px 0; color: #ffd700; font-weight: bold; }
+        
+        .btn-main { 
+            padding: 15px 60px; font-size: 24px; cursor: pointer; border-radius: 50px; 
+            border: none; background: #28a745; color: white; margin: 10px; transition: 0.2s;
+        }
+        .btn-main:hover { transform: scale(1.05); }
         .btn-secondary { background: none; border: 2px solid white; color: white; padding: 8px 20px; cursor: pointer; border-radius: 5px; }
 
-        /* العناصر */
-        #player { width: 100px; position: absolute; left: 40px; z-index: 100; transition: transform 0.1s; }
-        .bullet { width: 50px; position: absolute; z-index: 90; }
-        .drone { width: 120px; position: absolute; z-index: 95; }
+        /* العناصر المتحركة */
+        #player { width: 110px; position: absolute; left: 40px; z-index: 100; }
+        .bullet { width: 55px; position: absolute; z-index: 90; }
+        .drone { width: 130px; position: absolute; z-index: 95; }
 
-        #ui-layer { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; font-weight: bold; z-index: 1000; background: rgba(0,0,0,0.5); padding: 5px 25px; border-radius: 50px; }
+        #ui-layer { 
+            position: absolute; top: 20px; right: 20px; color: white; 
+            font-size: 28px; font-weight: bold; z-index: 1000; 
+            background: rgba(0,0,0,0.6); padding: 10px 30px; border-radius: 50px; 
+        }
 
         #end-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -44,19 +53,19 @@
             align-items: center; justify-content: center; color: white; z-index: 6000;
         }
 
-        /* أزرار الجوال */
+        /* تحكم الجوال */
         #mobile-controls {
             position: fixed; bottom: 30px; width: 100%; display: none;
-            justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 2000;
+            justify-content: space-between; padding: 0 40px; box-sizing: border-box; z-index: 2000;
         }
-        .nav-btns { display: flex; flex-direction: column; gap: 15px; }
+        .nav-btns { display: flex; flex-direction: column; gap: 20px; }
         .joy-btn {
-            width: 80px; height: 80px; background: rgba(255,255,255,0.3);
+            width: 85px; height: 85px; background: rgba(255,255,255,0.25);
             border: 2px solid #fff; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; font-size: 25px; color: #fff;
+            align-items: center; justify-content: center; font-size: 30px; color: #fff;
             user-select: none; touch-action: manipulation;
         }
-        #btn-fire { width: 110px; height: 110px; background: rgba(255, 0, 0, 0.5); }
+        #btn-fire { width: 120px; height: 120px; background: rgba(255, 0, 0, 0.5); font-weight: bold; }
 
         @media (max-width: 1024px) { #mobile-controls { display: flex; } }
     </style>
@@ -66,8 +75,8 @@
     <div id="start-screen">
         <h1>صقور السماء</h1>
         <button class="btn-main" onclick="initGame()">ابدأ اللعب</button>
-        <button class="btn-secondary" onclick="document.getElementById('more-text').style.display='block'">اضغط لمشاهدة رسالة الشكر</button>
-        <h6 id="more-text">شكرا لجميع الكوادر العاملة في هاته البلاد لما قدموه من تفاني في اعمالهم </h6>
+        <button class="btn-secondary" onclick="document.getElementById('more-text').style.display='block'">See More</button>
+        <h6 id="more-text">شكرا لجميع الكوادر التي تعمل في هاته البلاد لتفانيهم في عملهم</h6>
     </div>
 
     <div id="game-view">
@@ -84,9 +93,9 @@
     </div>
 
     <div id="end-screen">
-        <h1 style="color: #ff4d4d; font-size: 60px;">ارتقيت شهيدا</h1>
-        <h2 id="final-score" style="font-size: 30px;">النقاط: 0</h2>
-        <button class="btn-main" onclick="location.reload()">إعادة محاولة</button>
+        <h1 style="color: #ff4d4d; font-size: 50px;">ارتقيت شهيدا</h1>
+        <h2 id="final-score">النقاط: 0</h2>
+        <button class="btn-main" onclick="location.reload()">إعادة المحاولة</button>
     </div>
 
 <script>
@@ -100,18 +109,19 @@
     let playerY = window.innerHeight / 2;
     let drone = null;
     let droneSpeed = 5;
-    const playerStep = 12;
+    const playerStep = 13;
 
     const activeKeys = {};
     window.addEventListener('keydown', (e) => activeKeys[e.code] = true);
     window.addEventListener('keyup', (e) => activeKeys[e.code] = false);
 
+    // تحكم اللمس
     let touchUp = false, touchDown = false;
-    document.getElementById('m-up').ontouchstart = (e) => { e.preventDefault(); touchUp = true; };
-    document.getElementById('m-up').ontouchend = () => touchUp = false;
-    document.getElementById('m-down').ontouchstart = (e) => { e.preventDefault(); touchDown = true; };
-    document.getElementById('m-down').ontouchend = () => touchDown = false;
-    document.getElementById('btn-fire').ontouchstart = (e) => { e.preventDefault(); if(isLive) fire(); };
+    document.getElementById('m-up').addEventListener('touchstart', (e) => { e.preventDefault(); touchUp = true; });
+    document.getElementById('m-up').addEventListener('touchend', () => touchUp = false);
+    document.getElementById('m-down').addEventListener('touchstart', (e) => { e.preventDefault(); touchDown = true; });
+    document.getElementById('m-down').addEventListener('touchend', () => touchDown = false);
+    document.getElementById('btn-fire').addEventListener('touchstart', (e) => { e.preventDefault(); if(isLive) fire(); });
 
     function initGame() {
         document.getElementById('start-screen').style.display = 'none';
@@ -128,16 +138,21 @@
         if (activeKeys['KeyS'] || touchDown) playerY += playerStep;
 
         if (playerY < 0) playerY = 0;
-        if (playerY > window.innerHeight - 100) playerY = window.innerHeight - 100;
+        if (playerY > window.innerHeight - 110) playerY = window.innerHeight - 110;
         player.style.top = playerY + 'px';
 
         if (activeKeys['Space']) { fire(); activeKeys['Space'] = false; }
 
         if (drone && drone.dataset.falling !== "true") {
-            let currentRight = parseFloat(drone.style.right);
-            drone.style.right = (currentRight + droneSpeed) + 'px';
-            if (checkHit(player, drone)) terminateGame();
-            if (currentRight > window.innerWidth) spawnDrone();
+            let droneX = parseFloat(drone.style.right);
+            drone.style.right = (droneX + droneSpeed) + 'px';
+
+            // تصادم المسيرة مع الطائرة (منطقة ضرر كبيرة للاعب)
+            if (checkHit(player, drone, 10)) { 
+                terminateGame();
+            }
+
+            if (droneX > window.innerWidth) spawnDrone();
         }
         requestAnimationFrame(gameLoop);
     }
@@ -146,16 +161,17 @@
         const b = document.createElement('img');
         b.src = 'im3.png';
         b.className = 'bullet';
-        b.style.left = (player.offsetLeft + 90) + 'px';
-        b.style.top = (player.offsetTop + 30) + 'px';
+        b.style.left = (player.offsetLeft + 100) + 'px';
+        b.style.top = (player.offsetTop + 35) + 'px';
         gameView.appendChild(b);
 
         let moveB = setInterval(() => {
             if (!isLive) { clearInterval(moveB); b.remove(); return; }
             let bLeft = parseFloat(b.style.left);
-            b.style.left = (bLeft + 22) + 'px';
+            b.style.left = (bLeft + 25) + 'px';
 
-            if (drone && drone.dataset.falling !== "true" && checkHit(b, drone)) {
+            // تصادم الطلقة مع المسيرة (منطقة إصابة واسعة جداً - تسهيل اللعب)
+            if (drone && drone.dataset.falling !== "true" && checkHit(b, drone, -30)) {
                 clearInterval(moveB);
                 b.remove();
                 score += 10;
@@ -178,25 +194,18 @@
         droneSpeed += 0.15;
     }
 
-    // دالة سقوط المسيرة عند الاستهداف
     function animateDroneFall() {
         let target = drone;
         target.dataset.falling = "true";
-        drone = null; // تفريغ المتغير فوراً لإنتاج مسيرة جديدة لاحقاً
-        
-        let fallY = 0;
-        let fallX = parseFloat(target.style.right);
-        let rotation = 0;
+        drone = null;
+        let fallY = 0, fallX = parseFloat(target.style.right), rot = 0;
 
         let fallInterval = setInterval(() => {
-            fallY += 8;
-            fallX += 2;
-            rotation += 15;
+            fallY += 7; fallX += 3; rot += 10;
             target.style.top = (parseFloat(target.style.top) + fallY) + 'px';
             target.style.right = fallX + 'px';
-            target.style.transform = `rotate(${rotation}deg)`;
-            target.style.filter = "brightness(0.5) sepia(1)";
-
+            target.style.transform = `rotate(${rot}deg)`;
+            target.style.filter = "brightness(0.4) grayscale(1)";
             if (parseFloat(target.style.top) > window.innerHeight) {
                 clearInterval(fallInterval);
                 target.remove();
@@ -207,27 +216,33 @@
 
     function terminateGame() {
         isLive = false;
-        document.getElementById('final-score').innerText = "النقاط النهائية: " + score;
+        document.getElementById('final-score').innerText = "النقاط: " + score;
         endScreen.style.display = 'flex';
-        
-        // سقوط الطائرة عند الاصطدام
-        let pFall = 0;
-        let pRot = 0;
+        let pFall = 0, pRot = 0;
         let pAnim = setInterval(() => {
-            pFall += 10;
-            pRot -= 5;
+            pFall += 12; pRot -= 4;
             player.style.top = (player.offsetTop + pFall) + 'px';
             player.style.transform = `rotate(${pRot}deg)`;
             if (player.offsetTop > window.innerHeight) clearInterval(pAnim);
         }, 30);
     }
 
-    function checkHit(obj1, obj2) {
+    /**
+     * دالة التصادم الذكية
+     * @param {number} padding - القيمة الافتراضية 20 (الوضع الطبيعي)
+     * قيم سالبة تعني تكبير منطقة التصادم (أسهل للطلقة)
+     * قيم موجبة تعني تصغير منطقة التصادم (أصعب للاعب)
+     */
+    function checkHit(obj1, obj2, customPadding = 20) {
         let r1 = obj1.getBoundingClientRect();
         let r2 = obj2.getBoundingClientRect();
-        // تم تكبير الـ padding ليكون 60 لزيادة الدقة والعدالة
-        const p = 60; 
-        return !(r1.top + p > r2.bottom - p || r1.bottom - p < r2.top + p || r1.right - p < r2.left + p || r1.left + p > r2.right - p);
+        
+        return !(
+            r1.top + customPadding > r2.bottom - customPadding || 
+            r1.bottom - customPadding < r2.top + customPadding || 
+            r1.right - customPadding < r2.left + customPadding || 
+            r1.left + customPadding > r2.right - customPadding
+        );
     }
 </script>
 </body>
