@@ -3,46 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>صقور السماء - النسخة النهائية</title>
+    <title>صقور السماء</title>
     <style>
-        /* إعدادات الشاشة الأساسية */
-        body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: sans-serif; }
         
+        /* تأثير الخلفية المضببة مع بياض */
         #game-view {
             width: 100vw; height: 100vh;
-            background-image: url('im1.jpeg');
+            background-image: url('im1.png');
             background-size: cover; background-position: center;
-            position: relative; display: none; /* مخفي في البداية */
+            position: relative; display: none;
+        }
+        #game-view::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); z-index: 1;
         }
 
         /* شاشة البداية */
         #start-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('im1.png');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('im1.png');
             background-size: cover; display: flex; flex-direction: column;
             align-items: center; justify-content: center; color: white; z-index: 5000;
         }
-        #start-screen h1 { font-size: 80px; margin: 0; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        #more-text { display: none; margin: 15px 0; color: #ffd700; font-size: 20px; }
-        .btn-main {
-            padding: 15px 60px; font-size: 24px; cursor: pointer; border-radius: 50px;
-            border: none; background: #28a745; color: white; margin: 10px; transition: 0.3s;
-        }
-        .btn-main:hover { transform: scale(1.1); background: #218838; }
+        #start-screen h1 { font-size: 80px; margin: 0; }
+        #more-text { display: none; margin: 15px 0; color: #fff; }
+        .btn-main { padding: 15px 60px; font-size: 24px; cursor: pointer; border-radius: 50px; border: none; background: #28a745; color: white; margin: 10px; }
         .btn-secondary { background: none; border: 2px solid white; color: white; padding: 8px 20px; cursor: pointer; border-radius: 5px; }
 
-        /* العناصر المتحركة */
+        /* العناصر */
         #player { width: 100px; position: absolute; left: 40px; z-index: 100; transition: transform 0.1s; }
         .bullet { width: 50px; position: absolute; z-index: 90; }
         .drone { width: 120px; position: absolute; z-index: 95; }
 
-        /* الواجهة (النقاط) */
-        #ui-layer {
-            position: absolute; top: 20px; right: 20px; color: white;
-            font-size: 30px; font-weight: bold; text-shadow: 2px 2px 5px #000; z-index: 1000;
-        }
+        #ui-layer { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; font-weight: bold; z-index: 1000; background: rgba(0,0,0,0.5); padding: 5px 25px; border-radius: 50px; }
 
-        /* شاشة النهاية */
         #end-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); display: none; flex-direction: column;
@@ -56,27 +51,25 @@
         }
         .nav-btns { display: flex; flex-direction: column; gap: 15px; }
         .joy-btn {
-            width: 80px; height: 80px; background: rgba(255,255,255,0.2);
+            width: 80px; height: 80px; background: rgba(255,255,255,0.3);
             border: 2px solid #fff; border-radius: 50%; display: flex;
             align-items: center; justify-content: center; font-size: 25px; color: #fff;
             user-select: none; touch-action: manipulation;
         }
-        #btn-fire { width: 110px; height: 110px; background: rgba(255, 0, 0, 0.4); border-color: #ff4d4d; }
+        #btn-fire { width: 110px; height: 110px; background: rgba(255, 0, 0, 0.5); }
 
         @media (max-width: 1024px) { #mobile-controls { display: flex; } }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة البداية -->
     <div id="start-screen">
-        <h1>ss</h1>
+        <h1>صقور السماء</h1>
         <button class="btn-main" onclick="initGame()">ابدأ اللعب</button>
-        <button class="btn-secondary" onclick="document.getElementById('more-text').style.display='block'">See More</button>
-        <h6 id="more-text">ss1</h6>
+        <button class="btn-secondary" onclick="document.getElementById('more-text').style.display='block'">اضغط لمشاهدة رسالة الشكر</button>
+        <h6 id="more-text">شكرا لجميع الكوادر العاملة في هاته البلاد لما قدموه من تفاني في اعمالهم </h6>
     </div>
 
-    <!-- 2. ساحة اللعبة -->
     <div id="game-view">
         <div id="ui-layer">النقاط: <span id="score-val">0</span></div>
         <img src="im2.png" id="player" alt="الطائرة">
@@ -90,9 +83,8 @@
         </div>
     </div>
 
-    <!-- 3. شاشة النهاية -->
     <div id="end-screen">
-        <h1 style="color: #ff4d4d; font-size: 60px;">تحطمت الطائرة!</h1>
+        <h1 style="color: #ff4d4d; font-size: 60px;">ارتقيت شهيدا</h1>
         <h2 id="final-score" style="font-size: 30px;">النقاط: 0</h2>
         <button class="btn-main" onclick="location.reload()">إعادة محاولة</button>
     </div>
@@ -108,14 +100,12 @@
     let playerY = window.innerHeight / 2;
     let drone = null;
     let droneSpeed = 5;
-    const playerStep = 10;
+    const playerStep = 12;
 
-    // التحكم
     const activeKeys = {};
     window.addEventListener('keydown', (e) => activeKeys[e.code] = true);
     window.addEventListener('keyup', (e) => activeKeys[e.code] = false);
 
-    // تحكم الجوال
     let touchUp = false, touchDown = false;
     document.getElementById('m-up').ontouchstart = (e) => { e.preventDefault(); touchUp = true; };
     document.getElementById('m-up').ontouchend = () => touchUp = false;
@@ -134,37 +124,21 @@
     function gameLoop() {
         if (!isLive) return;
 
-        // حركة اللاعب
         if (activeKeys['KeyW'] || touchUp) playerY -= playerStep;
         if (activeKeys['KeyS'] || touchDown) playerY += playerStep;
 
-        // حدود الشاشة
         if (playerY < 0) playerY = 0;
         if (playerY > window.innerHeight - 100) playerY = window.innerHeight - 100;
         player.style.top = playerY + 'px';
 
-        // إطلاق الكمبيوتر
-        if (activeKeys['Space']) {
-            fire();
-            activeKeys['Space'] = false; // لمنع تكرار الطلقات بضغطة واحدة
-        }
+        if (activeKeys['Space']) { fire(); activeKeys['Space'] = false; }
 
-        // حركة المسيرة
-        if (drone) {
+        if (drone && drone.dataset.falling !== "true") {
             let currentRight = parseFloat(drone.style.right);
             drone.style.right = (currentRight + droneSpeed) + 'px';
-
-            // خسارة إذا لمست الطائرة
-            if (checkHit(player, drone)) {
-                terminateGame();
-            }
-
-            // إعادة تدوير المسيرة إذا خرجت
-            if (currentRight > window.innerWidth) {
-                spawnDrone();
-            }
+            if (checkHit(player, drone)) terminateGame();
+            if (currentRight > window.innerWidth) spawnDrone();
         }
-
         requestAnimationFrame(gameLoop);
     }
 
@@ -179,20 +153,16 @@
         let moveB = setInterval(() => {
             if (!isLive) { clearInterval(moveB); b.remove(); return; }
             let bLeft = parseFloat(b.style.left);
-            b.style.left = (bLeft + 20) + 'px';
+            b.style.left = (bLeft + 22) + 'px';
 
-            if (drone && checkHit(b, drone)) {
+            if (drone && drone.dataset.falling !== "true" && checkHit(b, drone)) {
                 clearInterval(moveB);
                 b.remove();
                 score += 10;
                 scoreVal.innerText = score;
-                explodeDrone();
+                animateDroneFall();
             }
-
-            if (bLeft > window.innerWidth) {
-                clearInterval(moveB);
-                b.remove();
-            }
+            if (bLeft > window.innerWidth) { clearInterval(moveB); b.remove(); }
         }, 20);
     }
 
@@ -201,39 +171,62 @@
         drone = document.createElement('img');
         drone.src = 'im4.png';
         drone.className = 'drone';
+        drone.dataset.falling = "false";
         drone.style.right = '-150px';
         drone.style.top = Math.random() * (window.innerHeight - 150) + 'px';
         gameView.appendChild(drone);
-        droneSpeed += 0.2; // زيادة الصعوبة
+        droneSpeed += 0.15;
     }
 
-    function explodeDrone() {
-        drone.style.transform = 'scale(1.5)';
-        drone.style.filter = 'brightness(5)';
-        setTimeout(() => {
-            spawnDrone();
-        }, 100);
+    // دالة سقوط المسيرة عند الاستهداف
+    function animateDroneFall() {
+        let target = drone;
+        target.dataset.falling = "true";
+        drone = null; // تفريغ المتغير فوراً لإنتاج مسيرة جديدة لاحقاً
+        
+        let fallY = 0;
+        let fallX = parseFloat(target.style.right);
+        let rotation = 0;
+
+        let fallInterval = setInterval(() => {
+            fallY += 8;
+            fallX += 2;
+            rotation += 15;
+            target.style.top = (parseFloat(target.style.top) + fallY) + 'px';
+            target.style.right = fallX + 'px';
+            target.style.transform = `rotate(${rotation}deg)`;
+            target.style.filter = "brightness(0.5) sepia(1)";
+
+            if (parseFloat(target.style.top) > window.innerHeight) {
+                clearInterval(fallInterval);
+                target.remove();
+                spawnDrone();
+            }
+        }, 30);
     }
 
     function terminateGame() {
         isLive = false;
-        document.getElementById('final-score').innerText = "مجموع النقاط: " + score;
+        document.getElementById('final-score').innerText = "النقاط النهائية: " + score;
         endScreen.style.display = 'flex';
         
-        // تأثير السقوط
-        let drop = 0;
-        let anim = setInterval(() => {
-            drop += 10;
-            player.style.top = (player.offsetTop + drop) + 'px';
-            player.style.transform = 'rotate(-30deg)';
-            if (player.offsetTop > window.innerHeight) clearInterval(anim);
+        // سقوط الطائرة عند الاصطدام
+        let pFall = 0;
+        let pRot = 0;
+        let pAnim = setInterval(() => {
+            pFall += 10;
+            pRot -= 5;
+            player.style.top = (player.offsetTop + pFall) + 'px';
+            player.style.transform = `rotate(${pRot}deg)`;
+            if (player.offsetTop > window.innerHeight) clearInterval(pAnim);
         }, 30);
     }
 
     function checkHit(obj1, obj2) {
         let r1 = obj1.getBoundingClientRect();
         let r2 = obj2.getBoundingClientRect();
-        const p = 20; // هامش أمان لتصحيح التصادم
+        // تم تكبير الـ padding ليكون 60 لزيادة الدقة والعدالة
+        const p = 60; 
         return !(r1.top + p > r2.bottom - p || r1.bottom - p < r2.top + p || r1.right - p < r2.left + p || r1.left + p > r2.right - p);
     }
 </script>
