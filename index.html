@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة الطائرة المتطورة</title>
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; }
+        
+        #game-container {
+            width: 100vw; height: 100vh;
+            background-image: url('im1.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        #player {
+            width: 80px; position: absolute;
+            left: 50px; top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .bullet { width: 25px; position: absolute; z-index: 5; }
+        .drone { width: 70px; position: absolute; z-index: 8; }
+
+        /* أزرار التحكم للجوال */
+        #mobile-controls {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            display: none; justify-content: space-between; align-items: flex-end;
+            z-index: 100;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 10px; }
+        
+        .btn {
+            width: 60px; height: 60px; background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; user-select: none;
+            touch-action: manipulation;
+        }
+
+        #fire-btn { width: 80px; height: 80px; background: rgba(255, 0, 0, 0.4); }
+
+        /* إظهار الأزرار فقط في الشاشات الصغيرة */
+        @media (max-width: 1024px) { #mobile-controls { display: flex; } }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <img src="im2.png" id="player" alt="الطائرة">
+    
+    <div id="mobile-controls">
+        <div class="control-group">
+            <div class="btn" id="up-btn">W</div>
+            <div class="btn" id="down-btn">S</div>
+        </div>
+        <div class="btn" id="fire-btn">إطلاق</div>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById('game-container');
+    const player = document.getElementById('player');
+    let drone = null;
+    let playerY = window.innerHeight / 2;
+    const speed = 8;
+
+    // --- نظام الحركة ---
+    const keys = {};
+    window.addEventListener('keydown', (e) => keys[e.code] = true);
+    window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+    // تحكم الجوال
+    let moveUp = false;
+    let moveDown = false;
+    document.getElementById('up-btn').ontouchstart = () => moveUp = true;
+    document.getElementById('up-btn').ontouchend = () => moveUp = false;
+    document.getElementById('down-btn').ontouchstart = () => moveDown = true;
+    document.getElementById('down-btn').ontouchend = () => moveDown = false;
+    document.getElementById('fire-btn').ontouchstart = (e) => { e.preventDefault(); shoot(); };
+
+    function update() {
+        // حركة الكمبيوتر (W للأعلى، S للأسفل)
+        if (keys['KeyW'] || moveUp) playerY -= speed;
+        if (keys['KeyS'] || moveDown) playerY += speed;
+
+        // منع الخروج من الشاشة
+        if (playerY < 0) playerY = 0;
+        if (playerY > window.innerHeight - 80) playerY = window.innerHeight - 80;
+
+        player.style.top = playerY + 'px';
+
+        if (keys['Space']) {
+            shoot();
+            keys['Space'] = false; // لمنع الإطلاق المستمر بضغطة واحدة
+        }
+        requestAnimationFrame(update);
+    }
+
+    // --- نظام الإطلاق ---
+    function shoot() {
+        const bullet = document.createElement('img');
+        bullet.src = 'im3.png';
+        bullet.className = 'bullet';
+        bullet.style.left = (player.offsetLeft + 80) + 'px';
+        bullet.style.top = (player.offsetTop + 30) + 'px';
+        container.appendChild(bullet);
+
+        let bulletMove = setInterval(() => {
+            let currentLeft = parseInt(bullet.style.left);
+            bullet.style.left = (currentLeft + 15) + 'px';
+
+            if (drone && isColliding(bullet, drone)) {
+                dropDrone();
+                bullet.remove();
+                clearInterval(bulletMove);
+            }
+
+            if (currentLeft > window.innerWidth) {
+                bullet.remove();
+                clearInterval(bulletMove);
+            }
+        }, 20);
+    }
+
+    // --- نظام المسيرة ---
+    function createDrone() {
+        if (drone) drone.remove();
+        drone = document.createElement('img');
+        drone.src = 'im4.png';
+        drone.className = 'drone';
+        drone.style.right = '50px';
+        drone.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+        container.appendChild(drone);
+    }
+
+    function dropDrone() {
+        let currentDrone = drone;
+        drone = null;
+        let fallSpeed = 0;
+        let fallInterval = setInterval(() => {
+            fallSpeed += 2;
+            currentDrone.style.top = (parseInt(currentDrone.style.top) + fallSpeed) + 'px';
+            currentDrone.style.transform = `rotate(${fallSpeed * 10}deg)`;
+            if (parseInt(currentDrone.style.top) > window.innerHeight) {
+                currentDrone.remove();
+                clearInterval(fallInterval);
+                createDrone();
+            }
+        }, 30);
+    }
+
+    function isColliding(a, b) {
+        let aRect = a.getBoundingClientRect();
+        let bRect = b.getBoundingClientRect();
+        return !(aRect.top > bRect.bottom || aRect.bottom < bRect.top || aRect.right < bRect.left || aRect.left > bRect.right);
+    }
+
+    // تشغيل اللعبة
+    createDrone();
+    update();
+</script>
+</body>
+</html>
