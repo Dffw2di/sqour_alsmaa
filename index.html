@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الطائرة المتطورة</title>
+    <title>لعبة تعبر عن امتناننة لجهود قوات الدفاع</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; }
         
         #game-container {
             width: 100vw; height: 100vh;
-            background-image: url('im1.png');
+            background-image: url('im1.jpeg');
             background-size: cover;
             background-position: center;
             position: relative;
@@ -51,7 +51,7 @@
 <body>
 
 <div id="game-container">
-    <img src="im2.png" id="player" alt="الطائرة">
+    <img src="im2.jpeg" id="player" alt="الطائرة">
     
     <div id="mobile-controls">
         <div class="control-group">
@@ -104,7 +104,7 @@
     // --- نظام الإطلاق ---
     function shoot() {
         const bullet = document.createElement('img');
-        bullet.src = 'im3.png';
+        bullet.src = 'im3.jpeg';
         bullet.className = 'bullet';
         bullet.style.left = (player.offsetLeft + 80) + 'px';
         bullet.style.top = (player.offsetTop + 30) + 'px';
