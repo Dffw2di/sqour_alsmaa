@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تحدي الطائرة والمسيرة</title>
+    <title>تحدي الطائرة والمسيرة - نسخة مطورة</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: Arial, sans-serif; }
         
@@ -15,15 +15,27 @@
             position: relative;
         }
 
+        /* حجم الطائرة */
         #player {
-            width: 80px; position: absolute;
+            width: 90px; position: absolute;
             left: 50px; top: 50%;
             transform: translateY(-50%);
             z-index: 10;
         }
 
-        .bullet { width: 25px; position: absolute; z-index: 5; }
-        .drone { width: 70px; position: absolute; z-index: 8; }
+        /* تم تكبير الطلقة من 25px إلى 45px */
+        .bullet { 
+            width: 45px; 
+            position: absolute; 
+            z-index: 5; 
+        }
+
+        /* تم تكبير المسيرة من 70px إلى 110px */
+        .drone { 
+            width: 110px; 
+            position: absolute; 
+            z-index: 8; 
+        }
 
         /* شاشة النهاية */
         #end-screen {
@@ -48,12 +60,12 @@
         }
         .control-group { display: flex; flex-direction: column; gap: 10px; }
         .btn {
-            width: 65px; height: 65px; background: rgba(255, 255, 255, 0.3);
+            width: 70px; height: 70px; background: rgba(255, 255, 255, 0.3);
             border: 2px solid #fff; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             color: white; font-weight: bold; user-select: none;
         }
-        #fire-btn { width: 90px; height: 90px; background: rgba(255, 0, 0, 0.5); }
+        #fire-btn { width: 100px; height: 100px; background: rgba(255, 0, 0, 0.5); }
 
         @media (max-width: 1024px) { #mobile-controls { display: flex; } }
     </style>
@@ -85,14 +97,13 @@
     let drone = null;
     let playerY = window.innerHeight / 2;
     let isGameOver = false;
-    const playerSpeed = 8;
-    let droneSpeed = 4; // سرعة هجوم المسيرة
+    const playerSpeed = 10; // زدت السرعة قليلاً لتناسب الحجم الجديد
+    let droneSpeed = 4;
 
     const keys = {};
     window.addEventListener('keydown', (e) => keys[e.code] = true);
     window.addEventListener('keyup', (e) => keys[e.code] = false);
 
-    // تحكم الجوال
     let moveUp = false, moveDown = false;
     document.getElementById('up-btn').ontouchstart = (e) => { e.preventDefault(); moveUp = true; };
     document.getElementById('up-btn').ontouchend = () => moveUp = false;
@@ -103,12 +114,11 @@
     function update() {
         if (isGameOver) return;
 
-        // حركة الطائرة
         if (keys['KeyW'] || moveUp) playerY -= playerSpeed;
         if (keys['KeyS'] || moveDown) playerY += playerSpeed;
 
         if (playerY < 0) playerY = 0;
-        if (playerY > window.innerHeight - 80) playerY = window.innerHeight - 80;
+        if (playerY > window.innerHeight - 90) playerY = window.innerHeight - 90;
         player.style.top = playerY + 'px';
 
         if (keys['Space']) {
@@ -116,17 +126,14 @@
             keys['Space'] = false;
         }
 
-        // حركة المسيرة باتجاه الطائرة
         if (drone) {
             let droneX = parseInt(drone.style.right);
             drone.style.right = (droneX + droneSpeed) + 'px';
 
-            // إذا وصلت المسيرة لنهاية الشاشة ولم تصطدم
             if (droneX > window.innerWidth) {
                 createDrone();
             }
 
-            // التحقق من اصطدام المسيرة بالطائرة (خسارة اللاعب)
             if (isColliding(player, drone)) {
                 gameOver();
             }
@@ -139,15 +146,16 @@
         const bullet = document.createElement('img');
         bullet.src = 'im3.png';
         bullet.className = 'bullet';
-        bullet.style.left = (player.offsetLeft + 80) + 'px';
-        bullet.style.top = (player.offsetTop + 30) + 'px';
+        // تعديل موضع الخروج ليناسب الحجم الكبير
+        bullet.style.left = (player.offsetLeft + 85) + 'px';
+        bullet.style.top = (player.offsetTop + 20) + 'px';
         container.appendChild(bullet);
 
         let bulletMove = setInterval(() => {
             if (isGameOver) { clearInterval(bulletMove); bullet.remove(); return; }
             
             let currentLeft = parseInt(bullet.style.left);
-            bullet.style.left = (currentLeft + 15) + 'px';
+            bullet.style.left = (currentLeft + 18) + 'px'; // سرعة الطلقة أسرع قليلاً
 
             if (drone && isColliding(bullet, drone)) {
                 destroyDrone();
@@ -167,16 +175,16 @@
         drone = document.createElement('img');
         drone.src = 'im4.png';
         drone.className = 'drone';
-        drone.style.right = '-100px'; // تبدأ من خارج الشاشة يميناً
-        drone.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+        drone.style.right = '-120px'; 
+        drone.style.top = Math.random() * (window.innerHeight - 120) + 'px';
         container.appendChild(drone);
-        droneSpeed += 0.2; // تزيد الصعوبة تدريجياً
+        droneSpeed += 0.2;
     }
 
     function destroyDrone() {
         let targetDrone = drone;
         drone = null;
-        targetDrone.style.filter = "hue-rotate(90deg) brightness(2)"; // تأثير انفجار بسيط
+        targetDrone.style.filter = "contrast(2) brightness(2) sepia(1)";
         setTimeout(() => {
             targetDrone.remove();
             createDrone();
@@ -187,7 +195,6 @@
         isGameOver = true;
         endScreen.style.display = 'flex';
         
-        // تأثير سقوط الطائرة
         let fall = 0;
         let fallInterval = setInterval(() => {
             fall += 5;
@@ -200,10 +207,16 @@
     function isColliding(a, b) {
         let aRect = a.getBoundingClientRect();
         let bRect = b.getBoundingClientRect();
-        return !(aRect.top > bRect.bottom || aRect.bottom < bRect.top || aRect.right < bRect.left || aRect.left > bRect.right);
+        // تصغير منطقة التصادم قليلاً لجعلها أكثر دقة مع الصور الكبيرة
+        const padding = 10;
+        return !(
+            aRect.top + padding > bRect.bottom - padding ||
+            aRect.bottom - padding < bRect.top + padding ||
+            aRect.right - padding < bRect.left + padding ||
+            aRect.left + padding > bRect.right - padding
+        );
     }
 
-    // ابدأ اللعبة
     createDrone();
     update();
 </script>
