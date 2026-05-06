@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>صقور السماء</title>
+    <title>صقور السماء - نسخة دقة العرض</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: sans-serif; }
         
-        /* تأثيرات الخلفية */
         #game-view {
             width: 100vw; height: 100vh;
-            background-image: url('im1.jpeg');
+            background-image: url('im1.png');
             background-size: cover; background-position: center;
             position: relative; display: none;
         }
@@ -34,7 +33,15 @@
         /* العناصر */
         #player { width: 110px; position: absolute; left: 40px; z-index: 100; }
         .bullet { width: 55px; position: absolute; z-index: 90; }
-        .drone { width: 130px; position: absolute; z-index: 95; }
+        
+        /* تعديل عرض المسيرة ليكون أنحف (80px) لتقليل منطقة التصادم الجانبية */
+        .drone { 
+            width: 80px; 
+            height: auto; 
+            position: absolute; 
+            z-index: 95; 
+            object-fit: contain;
+        }
 
         #ui-layer { position: absolute; top: 20px; right: 20px; color: white; font-size: 28px; font-weight: bold; z-index: 1000; background: rgba(0,0,0,0.6); padding: 10px 30px; border-radius: 50px; }
 
@@ -44,7 +51,6 @@
             align-items: center; justify-content: center; color: white; z-index: 6000;
         }
 
-        /* أزرار الجوال */
         #mobile-controls {
             position: fixed; bottom: 30px; width: 100%; display: none;
             justify-content: space-between; padding: 0 40px; box-sizing: border-box; z-index: 2000;
@@ -64,7 +70,7 @@
 <body>
 
     <div id="start-screen">
-        <h1>صقور السماء</h1>
+        <h1>صقور السماء/h1>
         <button class="btn-main" onclick="initGame()">ابدأ اللعب</button>
         <button class="btn-secondary" onclick="document.getElementById('more-text').style.display='block'">اضغط لرؤية رسالة الشكر</button>
         <h6 id="more-text">شكرا لجميع الكوادر التي تعمل في هاته البلاد المباركة لتفانيهم بأعمالهم</h6>
@@ -84,7 +90,7 @@
     </div>
 
     <div id="end-screen">
-        <h1 style="color: rgb(255, 255, 255); font-size: 50px;">ارتقيت شهيدا</h1>
+        <h1 style="color: #ff4d4d; font-size: 50px;">انتهت المهمة!</h1>
         <h2 id="final-score">النقاط: 0</h2>
         <button class="btn-main" onclick="location.reload()">إعادة المحاولة</button>
     </div>
@@ -106,7 +112,6 @@
     window.addEventListener('keydown', (e) => activeKeys[e.code] = true);
     window.addEventListener('keyup', (e) => activeKeys[e.code] = false);
 
-    // تحكم اللمس
     let touchUp = false, touchDown = false;
     document.getElementById('m-up').addEventListener('touchstart', (e) => { e.preventDefault(); touchUp = true; });
     document.getElementById('m-up').addEventListener('touchend', () => touchUp = false);
@@ -138,9 +143,7 @@
             let droneX = parseFloat(drone.style.right);
             drone.style.right = (droneX + droneSpeed) + 'px';
 
-            // تصادم المسيرة مع الطائرة (حجم الصور الفعلي)
             if (checkHit(player, drone)) terminateGame();
-
             if (droneX > window.innerWidth) spawnDrone();
         }
         requestAnimationFrame(gameLoop);
@@ -159,7 +162,6 @@
             let bLeft = parseFloat(b.style.left);
             b.style.left = (bLeft + 25) + 'px';
 
-            // تصادم الطلقة مع المسيرة (حجم الصور الفعلي)
             if (drone && drone.dataset.falling !== "true" && checkHit(b, drone)) {
                 clearInterval(moveB);
                 b.remove();
@@ -216,7 +218,6 @@
         }, 30);
     }
 
-    // دالة التصادم - مطابقة تماماً لمساحة الصور المستطيلة
     function checkHit(obj1, obj2) {
         let r1 = obj1.getBoundingClientRect();
         let r2 = obj2.getBoundingClientRect();
