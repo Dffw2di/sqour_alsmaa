@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>صقور السماء - نسخة دقة العرض</title>
+    <title>صقور السماء - نسخة مخصصة</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: sans-serif; }
         
         #game-view {
             width: 100vw; height: 100vh;
-            background-image: url('im1.jpeg');
+            background-image: url('im1.png');
             background-size: cover; background-position: center;
             position: relative; display: none;
         }
@@ -18,44 +18,38 @@
             background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); z-index: 1;
         }
 
-        /* شاشة البداية */
-        #start-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('im1.png');
-            background-size: cover; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: white; z-index: 5000;
+        /* إرشادات تظهر فقط على الكمبيوتر */
+        #instructions-bar {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            z-index: 1100; background: rgba(0, 0, 0, 0.5); padding: 8px 25px;
+            border-radius: 30px; color: white; font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none; display: flex; gap: 20px;
         }
-        #start-screen h1 { font-size: 80px; margin: 0; }
-        #more-text { display: none; margin: 15px 0; color: #ffd700; }
-        .btn-main { padding: 15px 60px; font-size: 24px; cursor: pointer; border-radius: 50px; border: none; background: #28a745; color: white; margin: 10px; }
-        .btn-secondary { background: none; border: 2px solid white; color: white; padding: 8px 20px; cursor: pointer; border-radius: 5px; }
+        .key-cap { 
+            background: #fff; color: #000; padding: 2px 8px; 
+            border-radius: 4px; font-weight: bold; margin-left: 5px;
+        }
 
-        /* العناصر */
         #player { width: 110px; position: absolute; left: 40px; z-index: 100; }
         .bullet { width: 55px; position: absolute; z-index: 90; }
-        
-        /* تعديل عرض المسيرة ليكون أنحف (80px) لتقليل منطقة التصادم الجانبية */
-        .drone { 
-            width: 80px; 
-            height: auto; 
-            position: absolute; 
-            z-index: 95; 
-            object-fit: contain;
-        }
+        .drone { width: 80px; height: auto; position: absolute; z-index: 95; object-fit: contain; }
 
-        #ui-layer { position: absolute; top: 20px; right: 20px; color: white; font-size: 28px; font-weight: bold; z-index: 1000; background: rgba(0,0,0,0.6); padding: 10px 30px; border-radius: 50px; }
+        #ui-layer { position: absolute; top: 15px; right: 20px; color: white; font-size: 24px; font-weight: bold; z-index: 1200; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 50px; }
 
-        #end-screen {
+        #start-screen, #end-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); display: none; flex-direction: column;
-            align-items: center; justify-content: center; color: white; z-index: 6000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 5000;
         }
+        #start-screen { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('im1.png'); background-size: cover; }
+        #end-screen { background: rgba(0, 0, 0, 0.9); display: none; z-index: 6000; }
+
+        .btn-main { padding: 15px 60px; font-size: 24px; cursor: pointer; border-radius: 50px; border: none; background: #28a745; color: white; margin: 10px; }
 
         #mobile-controls {
             position: fixed; bottom: 30px; width: 100%; display: none;
             justify-content: space-between; padding: 0 40px; box-sizing: border-box; z-index: 2000;
         }
-        .nav-btns { display: flex; flex-direction: column; gap: 20px; }
         .joy-btn {
             width: 85px; height: 85px; background: rgba(255,255,255,0.25);
             border: 2px solid #fff; border-radius: 50%; display: flex;
@@ -64,7 +58,11 @@
         }
         #btn-fire { width: 120px; height: 120px; background: rgba(255, 0, 0, 0.5); }
 
-        @media (max-width: 1024px) { #mobile-controls { display: flex; } }
+        /* إخفاء الإرشادات تماماً في الجوال */
+        @media (max-width: 1024px) { 
+            #mobile-controls { display: flex; } 
+            #instructions-bar { display: none !important; } 
+        }
     </style>
 </head>
 <body>
@@ -72,16 +70,21 @@
     <div id="start-screen">
         <h1>صقور السماء</h1>
         <button class="btn-main" onclick="initGame()">ابدأ اللعب</button>
-        <button class="btn-secondary" onclick="document.getElementById('more-text').style.display='block'">اضغط لرؤية رسالة الشكر</button>
-        <h6 id="more-text">شكرا لجميع الكوادر التي تعمل في هاته البلاد المباركة لتفانيهم بأعمالهم</h6>
     </div>
 
     <div id="game-view">
+        <!-- تظهر فقط على الكمبيوتر -->
+        <div id="instructions-bar">
+            <span><span class="key-cap">W</span>للأعلى</span>
+            <span><span class="key-cap">S</span>للأسفل</span>
+            <span><span class="key-cap">Space</span>للطلق</span>
+        </div>
+
         <div id="ui-layer">النقاط: <span id="score-val">0</span></div>
         <img src="im2.png" id="player" alt="الطائرة">
         
         <div id="mobile-controls">
-            <div class="nav-btns">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
                 <div class="joy-btn" id="m-up">W</div>
                 <div class="joy-btn" id="m-down">S</div>
             </div>
@@ -90,7 +93,7 @@
     </div>
 
     <div id="end-screen">
-        <h1 style="color: #ff4d4d; font-size: 50px;">انتهت المهمة!</h1>
+        <h1 style="color: #ff4d4d; font-size: 50px;">تحطمت الطائرة!</h1>
         <h2 id="final-score">النقاط: 0</h2>
         <button class="btn-main" onclick="location.reload()">إعادة المحاولة</button>
     </div>
@@ -107,6 +110,8 @@
     let drone = null;
     let droneSpeed = 5;
     const playerStep = 13;
+    let canFire = true;
+    const fireCooldown = 250;
 
     const activeKeys = {};
     window.addEventListener('keydown', (e) => activeKeys[e.code] = true);
@@ -130,19 +135,29 @@
     function gameLoop() {
         if (!isLive) return;
 
-        if (activeKeys['KeyW'] || touchUp) playerY -= playerStep;
-        if (activeKeys['KeyS'] || touchDown) playerY += playerStep;
+        let moving = false;
+        if (activeKeys['KeyW'] || touchUp) {
+            playerY -= playerStep;
+            player.src = 'im5.png';
+            moving = true;
+        } 
+        else if (activeKeys['KeyS'] || touchDown) {
+            playerY += playerStep;
+            player.src = 'im6.png';
+            moving = true;
+        }
+
+        if (!moving) player.src = 'im2.png';
 
         if (playerY < 0) playerY = 0;
         if (playerY > window.innerHeight - 110) playerY = window.innerHeight - 110;
         player.style.top = playerY + 'px';
 
-        if (activeKeys['Space']) { fire(); activeKeys['Space'] = false; }
+        if (activeKeys['Space']) fire();
 
         if (drone && drone.dataset.falling !== "true") {
             let droneX = parseFloat(drone.style.right);
             drone.style.right = (droneX + droneSpeed) + 'px';
-
             if (checkHit(player, drone)) terminateGame();
             if (droneX > window.innerWidth) spawnDrone();
         }
@@ -150,6 +165,9 @@
     }
 
     function fire() {
+        if (!canFire || !isLive) return;
+        canFire = false;
+        
         const b = document.createElement('img');
         b.src = 'im3.png';
         b.className = 'bullet';
@@ -171,6 +189,8 @@
             }
             if (bLeft > window.innerWidth) { clearInterval(moveB); b.remove(); }
         }, 20);
+
+        setTimeout(() => canFire = true, fireCooldown);
     }
 
     function spawnDrone() {
@@ -190,7 +210,6 @@
         target.dataset.falling = "true";
         drone = null;
         let fallY = 0, fallX = parseFloat(target.style.right), rot = 0;
-
         let fallInterval = setInterval(() => {
             fallY += 7; fallX += 3; rot += 10;
             target.style.top = (parseFloat(target.style.top) + fallY) + 'px';
@@ -207,6 +226,7 @@
 
     function terminateGame() {
         isLive = false;
+        player.src = 'im2.png';
         document.getElementById('final-score').innerText = "النقاط: " + score;
         endScreen.style.display = 'flex';
         let pFall = 0, pRot = 0;
@@ -221,13 +241,7 @@
     function checkHit(obj1, obj2) {
         let r1 = obj1.getBoundingClientRect();
         let r2 = obj2.getBoundingClientRect();
-        
-        return !(
-            r1.top > r2.bottom || 
-            r1.bottom < r2.top || 
-            r1.right < r2.left || 
-            r1.left > r2.right
-        );
+        return !(r1.top > r2.bottom || r1.bottom < r2.top || r1.right < r2.left || r1.left > r2.right);
     }
 </script>
 </body>
